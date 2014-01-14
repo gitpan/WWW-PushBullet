@@ -1,0 +1,8 @@
+MANIFEST
+Makefile.PL
+META.json
+META.yml
+bin/pushbullet
+conf/pushbullet.json
+lib/WWW/PushBullet.pm
+t/00_requirements.t
