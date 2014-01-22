@@ -46,7 +46,7 @@ Sets configuration file where to find default parameters configuration
 
 Sets debug mode
 
-=item B<-d>, B<--device_id>
+=item B<-d>, B<--device>
 
 Sets device to receive bullet
 
@@ -87,7 +87,7 @@ use warnings;
 
 use File::Slurp;
 use FindBin;
-use Getopt::Long;
+use Getopt::Long qw(:config no_ignore_case);
 use JSON;
 use Pod::Usage;
 
@@ -97,7 +97,26 @@ use WWW::PushBullet;
 
 my $FILE_CONFIG = "$FindBin::Bin/../conf/pushbullet.json";
 
+my %opt         = ();
+my @opt_devices = ();
+my @opt_items   = ();
+
 =head1 SUBROUTINES/METHODS
+
+=head2 DEBUG
+
+Prints Debug message when debug mode is enabled (with -D/--debug)
+
+=cut
+
+sub DEBUG
+{
+    my $line = shift;
+
+    printf "[DEBUG] %s\n", $line if ($opt{debug});
+
+    return ($line);
+}
 
 =head2 Read_File_Config($file_config)
 
@@ -112,6 +131,7 @@ sub Read_Config_File
     $file_config ||= $FILE_CONFIG;
     if (-r $file_config)
     {
+        DEBUG("Read_Config_File('$file_config')");
         my $json = read_file($file_config);
         return (JSON->new->decode($json));
     }
@@ -123,58 +143,80 @@ sub Read_Config_File
 # MAIN
 #
 
-my %opt       = ();
-my @opt_items = ();
-
-pod2usage(0) if (@ARGV < 2);
-$opt{action} = $ARGV[0];
-pod2usage(0) if ($opt{action} !~ /^(?:address|devices|file|link|list|note)$/);
-
 my $status = GetOptions(
-    'a|address=s'   => \$opt{address},
-    'b|body=s'      => \$opt{body},
-    'c|config=s'    => \$opt{file_config},
-    'D|debug'       => \$opt{debug},
-    'd|device_id=s' => \$opt{device_id},
-    'h|help'        => \$opt{help},
-    'f|file=s'      => \$opt{file},
-    'i|item=s'      => \@opt_items,
-    'k|apikey=s'    => \$opt{apikey},
-    'n|name=s'      => \$opt{name},
-    't|title=s'     => \$opt{title},
-    'u|url=s'       => \$opt{url},
-    'v|version'     => \$opt{version},
+    \%opt,
+    'address|a=s',    # for 'pushbullet address'
+    'body|b=s',       # for 'pushbullet note'
+    'config|c=s',     # to change configuration file
+    'device|d=s@',    # to specify device
+    'file|f=s',       # for 'pushbullet file'
+    'item|i=s@',      # for 'pushbullet list'
+    'apikey|k=s',     # to specify apikey
+    'name|n=s',       # for 'pushbullet address'
+    'title|t=s',      # for 'pushbullet note'
+    'url|u=s',        # for 'pushbullet link, list & note'
+    'debug|D',        # to set debug mode
+    'help|h',         # to print help
+    'version|v',      # to print version
 );
 pod2usage(0) if ((!$status) || ($opt{help}));
+if ($opt{version})
+{
+    printf "WWW::PushBullet v%s\n", WWW::PushBullet::version();
+    exit 0;
+}
 
-my $conf = Read_Config_File($opt{file_config});
+$opt{action} = $ARGV[0];
 
-my $apikey    = $opt{apikey}    || $conf->{apikey};
-my $address   = $opt{address}   || $conf->{default_address};
-my $body      = $opt{body}      || $conf->{default_body};
-my $device_id = $opt{device_id} || $conf->{default_device_id};
-my $file      = $opt{file}      || $conf->{default_file};
-my $items = (scalar @opt_items ? \@opt_items : $conf->{default_items});
+pod2usage(0)
+    if ((!defined $opt{action})
+    || ($opt{action} !~ /^(?:address|devices|file|link|list|note)$/));
+my $conf = Read_Config_File($opt{config});
+
+my $apikey  = $opt{apikey}  || $conf->{apikey};
+my $address = $opt{address} || $conf->{default_address};
+my $body    = $opt{body}    || $conf->{default_body};
+my @devices = (
+    defined $opt{device} && scalar @{$opt{device}}
+    ? @{$opt{device}}
+    : (defined $conf->{default_device_id} ? @{$conf->{default_device_id}} : ())
+);
+my $file = $opt{file} || $conf->{default_file};
+my $items = (
+    defined $opt{item} && scalar @{$opt{item}}
+    ? $opt{item}
+    : $conf->{default_items}
+);
 my $name  = $opt{name}  || $conf->{default_name};
 my $title = $opt{title} || $conf->{default_title};
 my $url   = $opt{url}   || $conf->{default_url};
 
-printf "API Key: [%s]\nDevice ID: [%s]\n", $apikey, $device_id
-    if ($opt{debug});
+my $pb = WWW::PushBullet->new({apikey => $apikey, debug => $opt{debug}});
 
-my $pb = WWW::PushBullet->new({apikey => $apikey});
+if ((!scalar @devices) && ($opt{action} ne 'devices'))
+{
+    DEBUG('No device specified, get all devices from apikey account');
+    my $devs = $pb->devices();
+    foreach my $d (@{$devs})
+    {
+        push @devices, $d->{id};
+    }
+}
 
 if ($opt{action} eq 'address')
 {
     if ((defined $name) && (defined $address))
     {
-        $pb->push_address(
-            {
-                device_id => $device_id,
-                name      => $name,
-                address   => $address
-            }
-        );
+        foreach my $device (@devices)
+        {
+            $pb->push_address(
+                {
+                    device_id => $device,
+                    name      => $name,
+                    address   => $address
+                }
+            );
+        }
     }
     else
     {
@@ -191,9 +233,12 @@ elsif ($opt{action} eq 'devices')
 }
 elsif ($opt{action} eq 'file')
 {
-    if (defined $file)
+    if ((defined $file) && (-r $file))
     {
-        $pb->push_file({device_id => $device_id, file => $file});
+        foreach my $device (@devices)
+        {
+            $pb->push_file({device_id => $device, file => $file});
+        }
     }
     else
     {
@@ -204,13 +249,16 @@ elsif ($opt{action} eq 'link')
 {
     if ((defined $title) && (defined $url) && ($url =~ /^https?:/))
     {
-        $pb->push_link(
-            {
-                device_id => $device_id,
-                title     => $title,
-                url       => $url
-            }
-        );
+        foreach my $device (@devices)
+        {
+            $pb->push_link(
+                {
+                    device_id => $device,
+                    title     => $title,
+                    url       => $url
+                }
+            );
+        }
     }
     else
     {
@@ -221,13 +269,16 @@ elsif ($opt{action} eq 'list')
 {
     if ((defined $title) && (scalar @{$items}))
     {
-        $pb->push_list(
-            {
-                device_id => $device_id,
-                title     => $title,
-                items     => $items
-            }
-        );
+        foreach my $device (@devices)
+        {
+            $pb->push_list(
+                {
+                    device_id => $device,
+                    title     => $title,
+                    items     => $items
+                }
+            );
+        }
     }
     else
     {
@@ -239,13 +290,16 @@ elsif ($opt{action} eq 'note')
 {
     if ((defined $title) && (defined $body))
     {
-        $pb->push_note(
-            {
-                device_id => $device_id,
-                title     => $title,
-                body      => $body
-            }
-        );
+        foreach my $device (@devices)
+        {
+            $pb->push_note(
+                {
+                    device_id => $device,
+                    title     => $title,
+                    body      => $body
+                }
+            );
+        }
     }
     else
     {
