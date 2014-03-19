@@ -65,10 +65,10 @@ sub new
     return (undef) if (!defined $params->{apikey});
     my $ua = LWP::UserAgent->new;
     $ua->agent("WWW::PushBullet/$VERSION");
-    $ua->proxy('https', $params->{proxy})   if (defined $params->{proxy});
-    $ua->credentials($PUSHBULLET{SERVER}, $PUSHBULLET{REALM}, $params->{apikey},
-        '');
-    
+    $ua->proxy('https', $params->{proxy}) if (defined $params->{proxy});
+    $ua->credentials($PUSHBULLET{SERVER}, $PUSHBULLET{REALM},
+        $params->{apikey}, '');
+
     my $self = {
         _ua     => $ua,
         _apikey => $params->{apikey},
@@ -94,7 +94,7 @@ sub DEBUG
     {
         my $str = sprintf '[DEBUG] %s', $line;
         printf "$str\n";
-        
+
         return ($str);
     }
 
@@ -353,8 +353,13 @@ sub version
 
 1;
 
+=head1 LICENSE
+ 
+This program is free software; you can redistribute it and/or modify it
+under the same terms as Perl itself.
+ 
 =head1 AUTHOR
 
-Sebastien Thebert <stt@ittool.org>
+Sebastien Thebert <www-pushbullet@onetool.pm>
 
 =cut
