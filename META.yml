@@ -23,4 +23,6 @@ requires:
   LWP::UserAgent: '0'
   Pod::Usage: '0'
   perl: '5.006'
-version: 1.0.3
+resources:
+  repository: https://github.com/sebthebert/WWW-PushBullet.git
+version: 1.2.0

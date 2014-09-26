@@ -38,12 +38,12 @@ use Data::Dump qw(dump);
 use JSON;
 use LWP::UserAgent;
 
-our $VERSION = '1.0.3';
+our $VERSION = '1.2.0';
 
 my %PUSHBULLET = (
-    REALM   => 'Pushbullet',
-    SERVER  => 'api.pushbullet.com:443',
-    URL_API => 'https://api.pushbullet.com/api',
+    REALM     => 'Pushbullet',
+    SERVER    => 'api.pushbullet.com:443',
+    URL_APIV2 => 'https://api.pushbullet.com/v2',
 );
 
 $ENV{PERL_LWP_SSL_VERIFY_HOSTNAME} = 0;
@@ -133,6 +133,37 @@ sub debug_mode
     return ($self->{_debug});
 }
 
+=head2 contacts()
+
+Returns list of contacts
+
+    my $contacts = $pb->contacts();
+    
+    foreach my $c (@{$contacts})
+    {
+        printf "Device '%s' => id %s\n", $d->{extras}->{model}, $d->{id};
+    }
+
+=cut
+
+sub contacts
+{
+    my $self = shift;
+
+    my $res = $self->{_ua}->get("$PUSHBULLET{URL_APIV2}/contacts");
+
+    if ($res->is_success)
+    {
+        my $data = JSON->new->decode($res->content);
+        return ($data->{contacts});
+    }
+    else
+    {
+        print $res->status_line, "\n";
+        return (undef);
+    }
+}
+
 =head2 devices()
     
 Returns list of devices
@@ -141,7 +172,8 @@ Returns list of devices
     
     foreach my $d (@{$devices})
     {
-        printf "Device '%s' => id %s\n", $d->{extras}->{model}, $d->{id};
+        printf "Device '%s' (%s)=> id %s\n", 
+            $d->{nickname}, $d->{model}, $d->{iden};
     }
 
 =cut
@@ -150,7 +182,7 @@ sub devices
 {
     my $self = shift;
 
-    my $res = $self->{_ua}->get("$PUSHBULLET{URL_API}/devices");
+    my $res = $self->{_ua}->get("$PUSHBULLET{URL_APIV2}/devices");
 
     if ($res->is_success)
     {
@@ -180,7 +212,7 @@ sub _pushes
         $type = $content->[$i + 1] if ($content->[$i] eq 'type');
     }
     my $res = $self->{_ua}->post(
-        "$PUSHBULLET{URL_API}/pushes",
+        "$PUSHBULLET{URL_APIV2}/pushes",
         Content_Type => ($type eq 'file' ? 'form-data' : undef),
         Content => $content
     );
