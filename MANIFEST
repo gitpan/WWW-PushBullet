@@ -9,7 +9,6 @@ Makefile.PL
 README
 README.md
 bin/pushbullet
-bin/pushbullet.bak
 conf/pushbullet.json
 dist.ini
 lib/WWW/PushBullet.pm

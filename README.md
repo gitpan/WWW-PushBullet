@@ -1,4 +1,4 @@
-# WWW-PushBullet [![Build Status](https://secure.travis-ci.org/sebthebert/WWW-PushBullet.png?branch=master)](http://travis-ci.org/sebthebert/WWW-PushBullet)
+# WWW-PushBullet [![Build Status](https://secure.travis-ci.org/sebthebert/WWW-PushBullet.png?branch=master)](http://travis-ci.org/sebthebert/WWW-PushBullet) [![Coverage Status](https://coveralls.io/repos/sebthebert/WWW-PushBullet/badge.png)](https://coveralls.io/r/sebthebert/WWW-PushBullet)
 
 # About
 
@@ -52,22 +52,22 @@ The easiest way to install WWW::PushBullet is [CPAN Minus](https://github.com/mi
 
 # Usage
 
-    pushbullet address [ -k <pushbullet_apikey> ] [ -d <device_id> ]
+    pushbullet address [ -k <pushbullet_apikey> ] [ -d <device_iden> ]
         --name 'address name' --address 'complete address'
     
     pushbullet contacts [ -k <pushbullet_apikey> ]
     
     pushbullet devices [ -k <pushbullet_apikey> ]
     
-    pushbullet file [ -k <pushbullet_apikey> ] [ -d <device_id> ] -f filename
+    pushbullet file [ -k <pushbullet_apikey> ] [ -d <device_iden> ] -f filename
     
-    pushbullet link [ -k <pushbullet_apikey> ] [ -d <device_id> ]
+    pushbullet link [ -k <pushbullet_apikey> ] [ -d <device_iden> ]
         --title 'your title' --url 'http://address'
     
-    pushbullet list [ -k <pushbullet_apikey> ] [ -d <device_id> ]
+    pushbullet list [ -k <pushbullet_apikey> ] [ -d <device_iden> ]
         --title 'your title' --item item1 --item item2 --item item3
     
-    pushbullet note [ -k <pushbullet_apikey> ] [ -d <device_id> ]
+    pushbullet note [ -k <pushbullet_apikey> ] [ -d <device_iden> ]
         --title 'your title' --body 'your body message'
 
 To obtain the complete list of pushbullet command options:
@@ -82,7 +82,7 @@ You can configure default parameters in a JSON format configuration file:
     {
         "apikey":"",
         "proxy":"",
-        "default_device_id":[],
+        "default_device_iden":[],
         "default_address":"1600 Amphitheatre Pkwy, Mountain View, CA 94043, Etats-Unis",
         "default_body":"This is a default title",
         "default_name":"GooglePlex",
@@ -92,4 +92,4 @@ You can configure default parameters in a JSON format configuration file:
 
 This configuration file is by default **./conf/pushbullet.json** but you can also specify another file with the **-c/--config** option.
 
-If you don't specify device_id (**-d/--device_id** or in configuration file), it will **push to all devices** of this apikey account.
+If you don't specify device_iden (**-d/--device** or in configuration file), it will **push to all devices** of this apikey account.
