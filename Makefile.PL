@@ -31,9 +31,12 @@ my %WriteMakefileArgs = (
   },
   "TEST_REQUIRES" => {
     "FindBin" => 0,
-    "Test::More" => 0
+    "Pod::Coverage::TrustPod" => 0,
+    "Test::More" => 0,
+    "Test::Pod" => 0,
+    "Test::Pod::Coverage" => 0
   },
-  "VERSION" => "1.2.2",
+  "VERSION" => "1.2.4",
   "test" => {
     "TESTS" => "t/*.t"
   }
@@ -47,8 +50,11 @@ my %FallbackPrereqs = (
   "Getopt::Long" => 0,
   "JSON" => 0,
   "LWP::UserAgent" => 0,
+  "Pod::Coverage::TrustPod" => 0,
   "Pod::Usage" => 0,
-  "Test::More" => 0
+  "Test::More" => 0,
+  "Test::Pod" => 0,
+  "Test::Pod::Coverage" => 0
 );
 
 

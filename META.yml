@@ -4,7 +4,10 @@ author:
   - 'Sebastien Thebert <www-pushbullet@onetool.pm>'
 build_requires:
   FindBin: '0'
+  Pod::Coverage::TrustPod: '0'
   Test::More: '0'
+  Test::Pod: '0'
+  Test::Pod::Coverage: '0'
 configure_requires:
   ExtUtils::MakeMaker: '6.30'
 dynamic_config: 0
@@ -14,6 +17,10 @@ meta-spec:
   url: http://module-build.sourceforge.net/META-spec-v1.4.html
   version: '1.4'
 name: WWW-PushBullet
+provides:
+  WWW::PushBullet:
+    file: lib/WWW/PushBullet.pm
+    version: v1.2.4
 requires:
   Data::Dump: '0'
   File::Slurp: '0'
@@ -25,4 +32,4 @@ requires:
   perl: '5.006'
 resources:
   repository: https://github.com/sebthebert/WWW-PushBullet.git
-version: 1.2.2
+version: 1.2.4
