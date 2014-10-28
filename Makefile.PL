@@ -27,6 +27,7 @@ my %WriteMakefileArgs = (
     "Getopt::Long" => 0,
     "JSON" => 0,
     "LWP::UserAgent" => 0,
+    "MIME::Types" => 0,
     "Pod::Usage" => 0
   },
   "TEST_REQUIRES" => {
@@ -36,7 +37,7 @@ my %WriteMakefileArgs = (
     "Test::Pod" => 0,
     "Test::Pod::Coverage" => 0
   },
-  "VERSION" => "1.2.4",
+  "VERSION" => "1.4.0",
   "test" => {
     "TESTS" => "t/*.t"
   }
@@ -50,6 +51,7 @@ my %FallbackPrereqs = (
   "Getopt::Long" => 0,
   "JSON" => 0,
   "LWP::UserAgent" => 0,
+  "MIME::Types" => 0,
   "Pod::Coverage::TrustPod" => 0,
   "Pod::Usage" => 0,
   "Test::More" => 0,

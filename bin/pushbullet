@@ -17,7 +17,8 @@ Program giving easy access to PushBullet features
     
     pushbullet devices [ -k <pushbullet_apikey> ]
     
-    pushbullet file [ -k <pushbullet_apikey> ] [ -d <device_iden> ] -f filename
+    pushbullet file [ -k <pushbullet_apikey> ] [ -d <device_iden> ] 
+        --file filename [ --body 'file description' ]
     
     pushbullet link [ -k <pushbullet_apikey> ] [ -d <device_iden> ]
         --title 'your title' --url 'http://address'
@@ -38,7 +39,7 @@ Sets address for 'pushbullet address'
 
 =item B<-b>, B<--body>
 
-Sets body for 'pushbullet note'
+Sets body/description for 'pushbullet file' or 'pusbullet note'
 
 =item B<-c>, B<--config>
 
@@ -109,9 +110,9 @@ my @opt_items   = ();
 
 =head1 SUBROUTINES/METHODS
 
-=head2 DEBUG
+=head2 DEBUG($line)
 
-Prints Debug message when debug mode is enabled (with -D/--debug)
+Prints message '[DEBUG] $line' if debug mode is enabled (with -D/--debug)
 
 =cut
 
@@ -126,7 +127,7 @@ sub DEBUG
 
 =head2 Read_File_Config($file_config)
 
-Reads configuration file
+Reads configuration file '$file_config'
 
 =cut
 
@@ -152,7 +153,7 @@ sub Read_Config_File
 my $status = GetOptions(
     \%opt,
     'address|a=s',    # for 'pushbullet address'
-    'body|b=s',       # for 'pushbullet note'
+    'body|b=s',       # for 'pushbullet file & note'
     'config|c=s',     # to change configuration file
     'device|d=s@',    # to specify device
     'file|f=s',       # for 'pushbullet file'
@@ -199,7 +200,10 @@ my $title = $opt{title} || $conf->{default_title};
 my $proxy = $opt{proxy} || $conf->{proxy};
 my $url   = $opt{url}   || $conf->{default_url};
 
-my $pb = WWW::PushBullet->new({apikey => $apikey, proxy => $proxy, debug => $opt{debug}});
+my $pb = WWW::PushBullet->new({
+    apikey => $apikey, 
+    proxy  => $proxy, 
+    debug  => $opt{debug}});
 
 if ((!scalar @devices) && ($opt{action} ne 'devices'))
 {
@@ -254,12 +258,12 @@ elsif ($opt{action} eq 'file')
     {
         foreach my $device (@devices)
         {
-            $pb->push_file({device_iden => $device, file => $file});
+            $pb->push_file({device_iden => $device, file_name => $file, body => $body});
         }
     }
     else
     {
-        printf "pushbullet file --file filename\n";
+        printf "pushbullet file --file filename --body 'file description'\n";
     }
 }
 elsif ($opt{action} eq 'link')

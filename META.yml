@@ -20,7 +20,7 @@ name: WWW-PushBullet
 provides:
   WWW::PushBullet:
     file: lib/WWW/PushBullet.pm
-    version: v1.2.4
+    version: v1.4.0
 requires:
   Data::Dump: '0'
   File::Slurp: '0'
@@ -28,8 +28,10 @@ requires:
   Getopt::Long: '0'
   JSON: '0'
   LWP::UserAgent: '0'
+  MIME::Types: '0'
   Pod::Usage: '0'
   perl: '5.006'
 resources:
-  repository: https://github.com/sebthebert/WWW-PushBullet.git
-version: 1.2.4
+  bugtracker: https://github.com/sebthebert/WWW-PushBullet/issues
+  repository: git://github.com/sebthebert/WWW-PushBullet.git
+version: 1.4.0
